@@ -30,16 +30,20 @@ public class ClienteLaberinto {
             System.out.println(msg);
 
             msg = lee.readLine();
-            while(msg != null){
+            while(!msg.equals("FIN")){
                 if(msg.equals("JUEGA")){
                     turnoJugador();
-                    return;
                 }
-                else{
+                else {
                     System.out.println(msg);
-                    msg = lee.readLine();
                 }
+
+                msg = lee.readLine();
             }
+
+            msg = lee.readLine();
+            System.out.println("Fin de la partida");
+            System.out.println(msg);
         }
         catch (UnknownHostException er){
             System.out.println("Nombre del servidor desconocido" + er);
@@ -59,7 +63,8 @@ public class ClienteLaberinto {
             envia.flush();
 
             String responce = lee.readLine();
-            while(responce.equals("err")){
+            while(!responce.equals("ok")){
+                System.out.println(responce);
                 System.out.println("Introduce un valor valido");
                 System.out.println("Inserta la fila y columna donde quieres moverte separado por escpacios");
                 System.out.println();
