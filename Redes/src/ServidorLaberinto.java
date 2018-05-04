@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.net.*;
 import java.io.*;
+import java.util.Random;
 import java.util.StringTokenizer;
 
 public class ServidorLaberinto {
@@ -22,9 +23,10 @@ public class ServidorLaberinto {
     private static int tabJ2;
 
     //Tableros de juego y posiciones de cada jugador
-    private static int[][] matrizJ1;
+    private static int[][] matrizJ1, matrizJ2;
     private static Point posJ1, posJ2;
-    private static int[][] matrizJ2;
+    private static int aciertosJ1, aciertosJ2;
+    private static int fallosJ1, fallosJ2;
 
     //Contador de turnos
     private static int turno;
@@ -33,6 +35,8 @@ public class ServidorLaberinto {
        try{
            puerto = 8000;
            ServerSocket servidor = new ServerSocket(puerto);
+
+           Random rdm = new Random();
 
            InitServer();
 
@@ -45,9 +49,11 @@ public class ServidorLaberinto {
            enviaJ1.flush();
 
            //Logica del juego
-           tabJ1 = 0;
+           tabJ1 = rdm.nextInt(4);
            posJ1 = new Point(initCells[tabJ1].x, initCells[tabJ1].y);
            setJ1Pos(posJ1);
+           aciertosJ1 = 0;
+           fallosJ1 = 0;
            nJugadores++;
            System.out.println("Se ha conectado el jugador 1");
 
@@ -60,9 +66,12 @@ public class ServidorLaberinto {
            enviaJ2.println("JUGADOR 2");
 
            //Logica del juego
-           tabJ2 = 1;
+           tabJ2 = rdm.nextInt(4);
+           while(tabJ2 == tabJ1) {tabJ2 = rdm.nextInt(4);} //Mientras se le asigne el mismo tablero a los dos jugadores asiganar otro tablero al jugador 2
            posJ2 = new Point(initCells[tabJ2].x, initCells[tabJ2].y);
            setJ2Pos(posJ2);
+           aciertosJ2 = 0;
+           fallosJ2 = 0;
            nJugadores++;
            System.out.println("Se ha conectado el jugador 2");
 
@@ -96,20 +105,25 @@ public class ServidorLaberinto {
                     ganador = "Jugador 1";
                     break;
                 }
+                aciertosJ1++;
             }
 
             if(!ganador.equals("")){
                 break;
             }
 
+            fallosJ1++;
+
             System.out.println("Fallo del jugador 1");
             System.out.println();
 
             enviaJ1.println("Fallo del jugador 1");
+            enviaJ1.println("Aciertos: " + aciertosJ1 + "\tFallos: " + fallosJ1);
             enviaJ1.println();
             enviaJ1.flush();
 
             enviaJ2.println("Fallo del jugador 1");
+            enviaJ2.println("Aciertos: " + aciertosJ1 + "\tFallos: " + fallosJ1);
             enviaJ2.println();
             enviaJ2.flush();
 
@@ -129,18 +143,26 @@ public class ServidorLaberinto {
                     ganador = "Jugador 2";
                     break;
                 }
+
+                aciertosJ2++;
             }
 
             if(!ganador.equals("")){
                 break;
             }
 
+            fallosJ2++;
+
             System.out.println("Fallo del jugador 2");
 
             enviaJ1.println("Fallo del jugador 2");
+            enviaJ1.println("Aciertos: " + aciertosJ2 + "\tFallos: " + fallosJ2);
+            enviaJ1.println();
             enviaJ1.flush();
 
             enviaJ2.println("Fallo del jugador 2");
+            enviaJ2.println("Aciertos: " + aciertosJ2 + "\tFallos: " + fallosJ2);
+            enviaJ2.println();
             enviaJ2.flush();
 
             turno ++;
@@ -148,12 +170,28 @@ public class ServidorLaberinto {
 
         enviaJ1.println("FIN");
         enviaJ1.println();
+        enviaJ1.println("FIN DE LA PARTIDA");
+        enviaJ1.println("Resultados del jugador 1");
+        enviaJ1.println("Aciertos: " + aciertosJ1 + "\tFallos: " + fallosJ1);
+        enviaJ1.println();
+        enviaJ1.println("Resultados del jugador 2");
+        enviaJ1.println("Aciertos: " + aciertosJ2 + "\tFallos: " + fallosJ2);
+        enviaJ1.println();
         enviaJ1.println("El ganador es: " + ganador);
+        enviaJ1.println("ACABA");
         enviaJ1.flush();
 
         enviaJ2.println("FIN");
         enviaJ2.println();
+        enviaJ2.println("FIN DE LA PARTIDA");
+        enviaJ2.println("Resultados del jugador 1");
+        enviaJ2.println("Aciertos: " + aciertosJ1 + "\tFallos: " + fallosJ1);
+        enviaJ2.println();
+        enviaJ2.println("Resultados del jugador 2");
+        enviaJ2.println("Aciertos: " + aciertosJ2 + "\tFallos: " + fallosJ2);
+        enviaJ2.println();
         enviaJ2.println("El ganador es: " + ganador);
+        enviaJ2.println("ACABA");
         enviaJ2.flush();
 
         System.out.println();
@@ -168,7 +206,21 @@ public class ServidorLaberinto {
         enviaJ1.println("Tablero J1");
         enviaJ2.println("Tablero J1");
 
+        for(int i = 0; i <= 7; i++){
+            System.out.print(i + "\t");
+            enviaJ1.print(i + "\t");
+            enviaJ2.print(i + "\t");
+        }
+
+        System.out.println();
+        enviaJ1.println();
+        enviaJ2.println();
+
         for(int i = 0; i < 7; i++){
+            System.out.print((i + 1) + "\t");
+            enviaJ1.print((i + 1)  + "\t");
+            enviaJ2.print((i + 1)  + "\t");
+
             for(int j = 0; j < 7; j++){
                 int value = matrizJ1[i][j];
                 if(value == -1){
@@ -207,7 +259,21 @@ public class ServidorLaberinto {
         enviaJ1.println("Tablero J2");
         enviaJ2.println("Tablero J2");
 
+        for(int i = 0; i <= 7; i++){
+            System.out.print(i + "\t");
+            enviaJ1.print(i + "\t");
+            enviaJ2.print(i + "\t");
+        }
+
+        System.out.println();
+        enviaJ1.println();
+        enviaJ2.println();
+
         for(int i = 0; i < 7; i++){
+            System.out.print((i + 1) + "\t");
+            enviaJ1.print((i + 1)  + "\t");
+            enviaJ2.print((i + 1)  + "\t");
+
             for(int j = 0; j < 7; j++){
                 int value = matrizJ2[i][j];
                 if(value == -1){
@@ -435,6 +501,8 @@ public class ServidorLaberinto {
         tableros = new int[4][][];
         generarMatriz1();
         generarMatriz2();
+        generarMatriz3();
+        generarMatriz4();
     }
 
     private static void generarMatriz1(){
@@ -462,6 +530,33 @@ public class ServidorLaberinto {
         initCells[1] = new Point(5, 0);
         endCells[1] = new Point(0, 0);
     }
+
+    private static void generarMatriz3(){
+        tableros[2] = new int[][]{  {0, 0, 0, 1, 1, 1, 1},
+                                    {0, 0, 0, 1, 0, 0, 1},
+                                    {0, 0, 0, 1, 1, 0, 1},
+                                    {0, 0, 0, 0, 1, 0, 1},
+                                    {0, 0, 1, 1, 1, 0, 1},
+                                    {0, 1, 1, 0, 0, 0, 0},
+                                    {0, 1, 0, 0, 0, 0, 0}};
+
+        initCells[2] = new Point(6, 1);
+        endCells[2] = new Point(4, 6);
+    }
+
+    private static void generarMatriz4(){
+        tableros[3] = new int[][]{  {0, 1, 1, 1, 1, 1, 0},
+                                    {0, 1, 0, 0, 0, 1, 0},
+                                    {0, 1, 1, 1, 0, 1, 0},
+                                    {0, 0, 0, 1, 0, 1, 1},
+                                    {0, 1, 1, 1, 0, 0, 0},
+                                    {0, 1, 0, 0, 0, 0, 0},
+                                    {0, 1, 1, 1, 1, 1, 1}};
+
+        initCells[3] = new Point(6, 6);
+        endCells[3] = new Point(3, 6);
+    }
+
 
 
     private static void InitServer(){

@@ -42,8 +42,10 @@ public class ClienteLaberinto {
             }
 
             msg = lee.readLine();
-            System.out.println("Fin de la partida");
-            System.out.println(msg);
+            while(!msg.equals("ACABA")){
+                System.out.println(msg);
+                msg = lee.readLine();
+            }
         }
         catch (UnknownHostException er){
             System.out.println("Nombre del servidor desconocido" + er);
